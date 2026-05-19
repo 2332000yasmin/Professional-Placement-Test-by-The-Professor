@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Professional Placement Test | Live MCQ System</title>
+    <title>Professional Placement Test | Secure Teacher Panel</title>
     <style>
         * {
             box-sizing: border-box;
@@ -24,7 +24,6 @@
             padding: 25px;
             margin-bottom: 25px;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-            transition: all 0.2s;
         }
         h1 {
             margin: 0 0 8px 0;
@@ -42,17 +41,6 @@
             color: #1a73e8;
             margin-top: 20px;
         }
-        .section-badge {
-            display: inline-block;
-            background: #1a73e8;
-            color: white;
-            padding: 4px 14px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
         .question {
             background: #fafcff;
             border: 1px solid #e2e8f0;
@@ -60,6 +48,14 @@
             padding: 16px 20px;
             margin: 16px 0;
             transition: 0.1s;
+        }
+        .question.correct-highlight {
+            background: #e8f5e9;
+            border-left: 6px solid #2e7d32;
+        }
+        .question.wrong-highlight {
+            background: #ffebee;
+            border-left: 6px solid #d32f2f;
         }
         .question-text {
             font-weight: 700;
@@ -81,7 +77,6 @@
             background: #f8fafc;
             padding: 6px 12px;
             border-radius: 40px;
-            transition: 0.1s;
         }
         .option:hover {
             background: #e6f0ff;
@@ -97,7 +92,6 @@
             font-weight: 600;
             margin-top: 18px;
             transition: 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         button:hover {
             background: #0d5bbf;
@@ -108,7 +102,6 @@
             padding: 22px;
             border-radius: 28px;
             margin-top: 25px;
-            border: 1px solid #caddf0;
         }
         .score {
             font-size: 2rem;
@@ -121,21 +114,29 @@
             margin-top: 8px;
             color: #2c3e66;
         }
-        .result-item {
-            padding: 10px 14px;
-            margin: 8px 0;
-            border-radius: 16px;
+        .feedback-answer {
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 12px;
             font-size: 0.85rem;
+            font-weight: 500;
         }
-        .correct {
-            background: #d4edda;
-            color: #0a4b1e;
-            border-left: 6px solid #2e7d32;
+        .feedback-correct {
+            background: #c8e6c9;
+            color: #1b5e20;
         }
-        .wrong {
-            background: #fee9e6;
-            color: #a51c0c;
-            border-left: 6px solid #d32f2f;
+        .feedback-wrong {
+            background: #ffcdd2;
+            color: #b71c1c;
+        }
+        .correct-answer-display {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #2c3e66;
+            background: #f5f5f5;
+            padding: 6px 10px;
+            border-radius: 12px;
+            display: inline-block;
         }
         .admin-panel {
             background: #fff9ef;
@@ -180,13 +181,18 @@
             border-left: 8px solid #ff9800;
             font-size: 0.98rem;
             line-height: 1.5;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         .info-banner {
             background: #e8f0fe;
             border-radius: 20px;
             padding: 18px;
             margin-bottom: 22px;
+        }
+        .password-prompt {
+            background: #f1f3f4;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
         }
         hr {
             margin: 24px 0;
@@ -207,8 +213,7 @@
 <div class="container">
     <div class="tabs">
         <button class="tab-btn active" id="tabStudentBtn">📝 Take Test</button>
-        <button class="tab-btn" id="tabTeacherBtn">⚙️ Teacher Edit</button>
-        <button class="tab-btn" id="tabKeyBtn">🔑 Answer Key & Guide</button>
+        <button class="tab-btn" id="tabTeacherBtn">🔒 Teacher Panel</button>
     </div>
 
     <!-- ======================= STUDENT VIEW ======================= -->
@@ -218,50 +223,53 @@
             <h3>👤 Before you begin</h3>
             <label>Full name (required):</label>
             <input type="text" id="studentFullName" placeholder="e.g., Maria Gonzalez" autocomplete="name">
-            <label>Your email (optional – to get copy of your result):</label>
+            <label>Your email (optional – to get a copy of your result):</label>
             <input type="email" id="studentContactEmail" placeholder="student@example.com">
             <button id="startTestBtn">✅ Start placement test</button>
         </div>
         <div id="testArea" style="display: none;">
             <div id="questionsRenderArea"></div>
             <div id="readingRenderArea"></div>
-            <button id="submitFinalBtn">📬 Submit test & send to teacher</button>
+            <button id="submitFinalBtn">📬 Submit test & see results</button>
             <div id="resultBox"></div>
         </div>
     </div>
 
-    <!-- ======================= TEACHER PANEL (EDIT) ======================= -->
+    <!-- ======================= TEACHER PANEL (PASSWORD PROTECTED - HIDDEN PASSWORD) ======================= -->
     <div id="teacherPanel" class="card admin-panel" style="display: none;">
-        <h2>✏️ Teacher dashboard</h2>
-        <label>📌 Test title (adjustable):</label>
-        <input type="text" id="testTitleInput" placeholder="e.g., Professional Placement Test">
-        <label>📨 Teacher email to receive results (REQUIRED):</label>
-        <input type="email" id="teacherEmailInput" placeholder="your.school@example.com" value="">
-        <label>📋 Edit all questions (JSON format):</label>
-        <textarea id="questionsJsonEditor" rows="10"></textarea>
-        <label>📖 Edit reading passage & questions (JSON):</label>
-        <textarea id="readingJsonEditor" rows="6"></textarea>
-        <button id="saveTeacherChangesBtn">💾 Save changes & sync</button>
-        <button id="resetDefaultBtn">🔄 Reset to default test</button>
-        <hr>
-        <h3>📊 Scoring guide (auto applied)</h3>
-        <pre style="background:#f4f1ea; padding:12px; border-radius:16px;">0-5  → Below A1
+        <div id="teacherLockArea">
+            <div class="password-prompt">
+                <h3>🔐 Teacher Access Required</h3>
+                <label>Enter password to edit test:</label>
+                <input type="password" id="teacherPassword" placeholder="Enter password">
+                <button id="unlockTeacherBtn">Unlock Panel</button>
+            </div>
+        </div>
+        <div id="teacherContentArea" style="display: none;">
+            <h2>✏️ Teacher Dashboard</h2>
+            <label>📌 Test title (adjustable):</label>
+            <input type="text" id="testTitleInput" placeholder="e.g., Professional Placement Test">
+            <label>🔐 Change teacher password (optional):</label>
+            <input type="password" id="newPasswordInput" placeholder="New password">
+            <label>📋 Edit all questions (JSON format):</label>
+            <textarea id="questionsJsonEditor" rows="10"></textarea>
+            <label>📖 Edit reading passage & questions (JSON):</label>
+            <textarea id="readingJsonEditor" rows="6"></textarea>
+            <button id="saveTeacherChangesBtn">💾 Save changes & sync</button>
+            <button id="resetDefaultBtn">🔄 Reset to default test</button>
+            <hr>
+            <h3>📊 Scoring guide (auto applied)</h3>
+            <pre style="background:#f4f1ea; padding:12px; border-radius:16px;">0-5  → Below A1
 6-10 → A1–A2
 11-15 → A2–B1
 16-20 → B1–B2
 21-23 → B2–C1
 24-25 → C1–C2</pre>
-        <p><strong>💡 Note:</strong> Every student submission will be sent to the teacher email above. Students also get a copy if they provide email.</p>
+            <p><strong>📧 Results are automatically sent to: yasminbadr904@gmail.com</strong></p>
+        </div>
     </div>
 
-    <!-- ======================= ANSWER KEY REFERENCE ======================= -->
-    <div id="answerKeyPanel" class="card" style="display: none;">
-        <h2>🔑 Official answer key & teacher feedback</h2>
-        <div id="answerKeyTable"></div>
-        <h3>🧠 Feedback guide for wrong answers</h3>
-        <div id="feedbackNotes"></div>
-    </div>
-    <footer>Live Placement System — auto-graded & email reports</footer>
+    <footer>Professional Placement Test — Results sent to teacher</footer>
 </div>
 
 <script>
@@ -305,22 +313,22 @@
         ]
     };
 
-    // global state
+    // Global state
     let currentQuestions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
     let currentReading = JSON.parse(JSON.stringify(DEFAULT_READING));
-    let teacherEmail = localStorage.getItem("teacherEmail") || "";
     let testTitle = localStorage.getItem("testTitle") || "Professional Placement Test";
+    let teacherPassword = localStorage.getItem("teacherPassword") || "admin2025";
+    
+    // Teacher email is fixed
+    const TEACHER_EMAIL = "yasminbadr904@gmail.com";
 
     // DOM elements
     const studentPanel = document.getElementById("studentPanel");
     const teacherPanel = document.getElementById("teacherPanel");
-    const answerPanel = document.getElementById("answerKeyPanel");
     const tabStudent = document.getElementById("tabStudentBtn");
     const tabTeacher = document.getElementById("tabTeacherBtn");
-    const tabKey = document.getElementById("tabKeyBtn");
     const titleDynamic = document.getElementById("dynamicTitle");
     const testTitleInput = document.getElementById("testTitleInput");
-    const teacherEmailInput = document.getElementById("teacherEmailInput");
     const questionsEditor = document.getElementById("questionsJsonEditor");
     const readingEditor = document.getElementById("readingJsonEditor");
     const saveBtn = document.getElementById("saveTeacherChangesBtn");
@@ -329,20 +337,24 @@
     const studentAuth = document.getElementById("studentAuthSection");
     const testAreaDiv = document.getElementById("testArea");
     const submitFinal = document.getElementById("submitFinalBtn");
+    const unlockBtn = document.getElementById("unlockTeacherBtn");
+    const teacherLockArea = document.getElementById("teacherLockArea");
+    const teacherContentArea = document.getElementById("teacherContentArea");
+    const newPasswordInput = document.getElementById("newPasswordInput");
 
     let currentStudentName = "";
     let currentStudentMail = "";
 
-    // Helper: update title UI
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
     function updateTitleUI() {
         titleDynamic.innerHTML = `<h1>${escapeHtml(testTitle)}</h1>`;
         if(testTitleInput) testTitleInput.value = testTitle;
     }
 
-    // Helper: save to localStorage
     function persistData() {
         localStorage.setItem("testTitle", testTitle);
-        localStorage.setItem("teacherEmail", teacherEmail);
+        localStorage.setItem("teacherPassword", teacherPassword);
         localStorage.setItem("questionsBank", JSON.stringify(currentQuestions));
         localStorage.setItem("readingBank", JSON.stringify(currentReading));
     }
@@ -350,80 +362,52 @@
     function loadFromLocal() {
         let savedTitle = localStorage.getItem("testTitle");
         if(savedTitle) testTitle = savedTitle;
-        let savedTeacherEmail = localStorage.getItem("teacherEmail");
-        if(savedTeacherEmail) teacherEmail = savedTeacherEmail;
         let savedQ = localStorage.getItem("questionsBank");
         if(savedQ) { try { currentQuestions = JSON.parse(savedQ); } catch(e){} }
         let savedR = localStorage.getItem("readingBank");
         if(savedR) { try { currentReading = JSON.parse(savedR); } catch(e){} }
         updateTitleUI();
-        if(teacherEmailInput) teacherEmailInput.value = teacherEmail;
         if(questionsEditor) questionsEditor.value = JSON.stringify(currentQuestions, null, 2);
         if(readingEditor) readingEditor.value = JSON.stringify(currentReading, null, 2);
     }
 
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-
-    // render full test (dynamic)
-    function renderStudentTest() {
-        let container = document.getElementById("questionsRenderArea");
-        let readingContainer = document.getElementById("readingRenderArea");
-        if(!container) return;
-        let html = "";
-        // group questions by section roughly
-        let qNum = 1;
-        for(let q of currentQuestions) {
-            html += `<div class="question" data-qidx="${qNum-1}">
-                        <div class="question-text">${qNum}. ${escapeHtml(q.text)} <span style="font-size:0.7rem; background:#eef2ff; padding:2px 8px; border-radius:20px; margin-left:8px;">${q.section}</span></div>
-                        <div class="options">`;
-            const letters = ["A","B","C","D"];
-            q.options.forEach((opt, idx) => {
-                let letter = letters[idx];
-                html += `<label class="option"><input type="radio" name="q${qNum-1}" value="${letter}"> <strong>${letter}.</strong> ${escapeHtml(opt)}</label>`;
-            });
-            html += `</div></div>`;
-            qNum++;
-        }
-        // reading passage
-        html += `<h2>📖 Reading Comprehension</h2><div class="reading-passage">${escapeHtml(currentReading.passage).replace(/\n/g, '<br>')}</div>`;
-        for(let i=0; i<currentReading.readingQuestions.length; i++) {
-            let rq = currentReading.readingQuestions[i];
-            html += `<div class="question"><div class="question-text">Reading ${i+1}. ${escapeHtml(rq.text)}</div><div class="options">`;
-            const letters = ["A","B","C","D"];
-            rq.options.forEach((opt, idx) => {
-                html += `<label class="option"><input type="radio" name="reading${i}" value="${letters[idx]}"> <strong>${letters[idx]}.</strong> ${escapeHtml(opt)}</label>`;
-            });
-            html += `</div></div>`;
-        }
-        container.innerHTML = html;
-        readingContainer.innerHTML = "";
-    }
-
-    // scoring and email dispatcher using FormSubmit (free & simple)
+    // EMAIL SENDING using FormSubmit.co
     async function sendEmailReport(student, studentEmail, score, total, level, answersDetail) {
-        let recipient = teacherEmail.trim();
-        if(!recipient) {
-            alert("⚠️ Teacher email not set. Go to Teacher Edit tab and set your email address.");
-            return false;
-        }
-        let subject = `Placement Test: ${student} scored ${score}/${total} (${level})`;
-        let body = `STUDENT REPORT\n\nName: ${student}\nStudent Email: ${studentEmail || 'not provided'}\nDate: ${new Date().toLocaleString()}\nScore: ${score}/${total}\nCEFR Level: ${level}\n\nDetailed answers:\n${answersDetail}\n\n--- Automatic report from Live Placement Tool ---`;
-        // Use FormSubmit.co free endpoint (send directly to teacher email)
-        const formSubmitUrl = "https://formsubmit.co/ajax/" + encodeURIComponent(recipient);
+        const subject = `Placement Test Result: ${student} scored ${score}/${total} (${level})`;
+        const body = `NEW SUBMISSION\n\nStudent Name: ${student}\nStudent Email: ${studentEmail || 'Not provided'}\nDate: ${new Date().toLocaleString()}\nScore: ${score}/${total}\nCEFR Level: ${level}\n\n--- Detailed Answers ---\n${answersDetail}\n\n--- End of Report ---`;
+        
+        const formSubmitUrl = "https://formsubmit.co/ajax/" + encodeURIComponent(TEACHER_EMAIL);
+        
         try {
-            let response = await fetch(formSubmitUrl, {
+            const response = await fetch(formSubmitUrl, {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     name: student,
                     _subject: subject,
                     message: body,
-                    email: studentEmail || recipient
+                    email: studentEmail || TEACHER_EMAIL,
+                    _replyto: studentEmail || TEACHER_EMAIL,
+                    _captcha: "false"
                 })
             });
-            if(response.ok) return true;
-            else return false;
-        } catch(err) { return false; }
+            
+            if (response.ok && studentEmail && studentEmail.trim() !== "") {
+                await fetch("https://formsubmit.co/ajax/" + encodeURIComponent(studentEmail), {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        _subject: `Your Placement Test Results`,
+                        message: `Dear ${student},\n\nYou scored ${score}/${total} (${level}) on the placement test.\n\nThank you for taking the test!`,
+                        _captcha: "false"
+                    })
+                });
+            }
+            return true;
+        } catch(err) {
+            console.error("Email error:", err);
+            return false;
+        }
     }
 
     function computeLevel(score) {
@@ -441,47 +425,171 @@
         let total = totalMain + totalReading;
         let score = 0;
         let details = [];
-        // main questions
+        let userAnswers = [];
+        
         for(let i=0; i<totalMain; i++) {
             let selected = document.querySelector(`input[name="q${i}"]:checked`);
             let userVal = selected ? selected.value : null;
             let isCorrect = (userVal === currentQuestions[i].correct);
             if(isCorrect) score++;
-            details.push(`Q${i+1}: ${currentQuestions[i].text.substring(0,70)} | Your: ${userVal || '—'} | Correct: ${currentQuestions[i].correct} ✅${isCorrect ? '✓' : '✗'}`);
+            userAnswers.push({ index: i, type: 'main', user: userVal, correct: currentQuestions[i].correct, isCorrect: isCorrect, text: currentQuestions[i].text, correctLetter: currentQuestions[i].correct, options: currentQuestions[i].options });
+            details.push(`Q${i+1}: ${currentQuestions[i].text.substring(0,60)} | Your: ${userVal || '—'} | Correct: ${currentQuestions[i].correct} ${isCorrect ? '✓' : '✗'}`);
         }
-        // reading
+        
         for(let i=0; i<totalReading; i++) {
             let selected = document.querySelector(`input[name="reading${i}"]:checked`);
             let userVal = selected ? selected.value : null;
             let isCorrect = (userVal === currentReading.readingQuestions[i].correct);
             if(isCorrect) score++;
-            details.push(`Reading${i+1}: ${currentReading.readingQuestions[i].text.substring(0,70)} | Your: ${userVal || '—'} | Correct: ${currentReading.readingQuestions[i].correct} ✅${isCorrect ? '✓' : '✗'}`);
+            userAnswers.push({ index: i, type: 'reading', user: userVal, correct: currentReading.readingQuestions[i].correct, isCorrect: isCorrect, text: currentReading.readingQuestions[i].text, correctLetter: currentReading.readingQuestions[i].correct, options: currentReading.readingQuestions[i].options });
+            details.push(`R${i+1}: ${currentReading.readingQuestions[i].text.substring(0,60)} | Your: ${userVal || '—'} | Correct: ${currentReading.readingQuestions[i].correct} ${isCorrect ? '✓' : '✗'}`);
         }
+        
         let level = computeLevel(score);
         let answerSummary = details.join("\n");
-        return { score, total, level, answerSummary };
+        return { score, total, level, answerSummary, userAnswers };
     }
 
+    function displayAnswersUnderQuestions(userAnswers) {
+        // For main questions (0 to 24)
+        for(let i=0; i<currentQuestions.length; i++) {
+            let answerData = userAnswers.find(a => a.type === 'main' && a.index === i);
+            if(!answerData) continue;
+            
+            let questionDiv = document.querySelector(`.question[data-qidx="${i}"]`);
+            if(!questionDiv) continue;
+            
+            // Remove existing feedback if any
+            let existingFeedback = questionDiv.querySelector('.feedback-answer');
+            if(existingFeedback) existingFeedback.remove();
+            
+            let letterMap = { A: 0, B: 1, C: 2, D: 3 };
+            let correctOptionText = answerData.options[letterMap[answerData.correct]] || answerData.correct;
+            
+            let feedbackDiv = document.createElement('div');
+            feedbackDiv.className = `feedback-answer ${answerData.isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+            
+            if(answerData.isCorrect) {
+                feedbackDiv.innerHTML = `✅ <strong>Correct!</strong> The answer is ${answerData.correct}. ${correctOptionText}`;
+            } else {
+                feedbackDiv.innerHTML = `❌ <strong>Incorrect.</strong> Your answer: ${answerData.user || 'Not answered'} | Correct answer: ${answerData.correct}. ${correctOptionText}`;
+            }
+            
+            questionDiv.appendChild(feedbackDiv);
+            
+            // Add highlight class
+            questionDiv.classList.add(answerData.isCorrect ? 'correct-highlight' : 'wrong-highlight');
+        }
+        
+        // For reading questions
+        for(let i=0; i<currentReading.readingQuestions.length; i++) {
+            let answerData = userAnswers.find(a => a.type === 'reading' && a.index === i);
+            if(!answerData) continue;
+            
+            let questionDiv = document.querySelector(`.question[data-ridx="${i}"]`);
+            if(!questionDiv) continue;
+            
+            let existingFeedback = questionDiv.querySelector('.feedback-answer');
+            if(existingFeedback) existingFeedback.remove();
+            
+            let letterMap = { A: 0, B: 1, C: 2, D: 3 };
+            let correctOptionText = answerData.options[letterMap[answerData.correct]] || answerData.correct;
+            
+            let feedbackDiv = document.createElement('div');
+            feedbackDiv.className = `feedback-answer ${answerData.isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+            
+            if(answerData.isCorrect) {
+                feedbackDiv.innerHTML = `✅ <strong>Correct!</strong> The answer is ${answerData.correct}. ${correctOptionText}`;
+            } else {
+                feedbackDiv.innerHTML = `❌ <strong>Incorrect.</strong> Your answer: ${answerData.user || 'Not answered'} | Correct answer: ${answerData.correct}. ${correctOptionText}`;
+            }
+            
+            questionDiv.appendChild(feedbackDiv);
+            questionDiv.classList.add(answerData.isCorrect ? 'correct-highlight' : 'wrong-highlight');
+        }
+    }
+
+    function renderStudentTest() {
+        let container = document.getElementById("questionsRenderArea");
+        if(!container) return;
+        let html = "";
+        let qNum = 1;
+        for(let i=0; i<currentQuestions.length; i++) {
+            let q = currentQuestions[i];
+            html += `<div class="question" data-qidx="${i}">
+                        <div class="question-text">${qNum}. ${escapeHtml(q.text)} <span style="font-size:0.7rem; background:#eef2ff; padding:2px 8px; border-radius:20px; margin-left:8px;">${q.section}</span></div>
+                        <div class="options">`;
+            const letters = ["A","B","C","D"];
+            q.options.forEach((opt, idx) => {
+                html += `<label class="option"><input type="radio" name="q${i}" value="${letters[idx]}"> <strong>${letters[idx]}.</strong> ${escapeHtml(opt)}</label>`;
+            });
+            html += `</div></div>`;
+            qNum++;
+        }
+        
+        html += `<h2>📖 Reading Comprehension</h2><div class="reading-passage">${escapeHtml(currentReading.passage).replace(/\n/g, '<br>')}</div>`;
+        for(let i=0; i<currentReading.readingQuestions.length; i++) {
+            let rq = currentReading.readingQuestions[i];
+            html += `<div class="question" data-ridx="${i}">
+                        <div class="question-text">Reading ${i+1}. ${escapeHtml(rq.text)}</div>
+                        <div class="options">`;
+            const letters = ["A","B","C","D"];
+            rq.options.forEach((opt, idx) => {
+                html += `<label class="option"><input type="radio" name="reading${i}" value="${letters[idx]}"> <strong>${letters[idx]}.</strong> ${escapeHtml(opt)}</label>`;
+            });
+            html += `</div></div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    // Event Listeners
     submitFinal.addEventListener("click", async () => {
         if(!currentStudentName) {
             alert("Session error: please restart test.");
             return;
         }
-        let { score, total, level, answerSummary } = collectAnswersAndScore();
-        let resultHtml = `<div class="score-card"><div class="score">✅ Score: ${score}/${total} (${Math.round(score/total*100)}%)</div>
-                          <div class="level">🏆 CEFR Level: ${level}</div></div>`;
+        
+        // Check if all questions are answered (optional warning)
+        let totalQuestions = currentQuestions.length + currentReading.readingQuestions.length;
+        let answered = 0;
+        for(let i=0; i<currentQuestions.length; i++) {
+            if(document.querySelector(`input[name="q${i}"]:checked`)) answered++;
+        }
+        for(let i=0; i<currentReading.readingQuestions.length; i++) {
+            if(document.querySelector(`input[name="reading${i}"]:checked`)) answered++;
+        }
+        
+        if(answered < totalQuestions) {
+            if(!confirm(`You have answered ${answered} out of ${totalQuestions} questions. Continue anyway?`)) {
+                return;
+            }
+        }
+        
+        let { score, total, level, answerSummary, userAnswers } = collectAnswersAndScore();
+        
+        // Display answers under each question
+        displayAnswersUnderQuestions(userAnswers);
+        
+        let resultHtml = `<div class="score-card">
+                            <div class="score">✅ Score: ${score}/${total} (${Math.round(score/total*100)}%)</div>
+                            <div class="level">🏆 CEFR Level: ${level}</div>
+                          </div>`;
         document.getElementById("resultBox").innerHTML = resultHtml;
         
         // Send email to teacher
         let emailSent = await sendEmailReport(currentStudentName, currentStudentMail, score, total, level, answerSummary);
+        
         if(emailSent) {
-            alert(`Test submitted! Results sent to teacher. Your score: ${score}/${total} (${level})`);
+            alert(`✅ Test submitted! Results sent to teacher. Your score: ${score}/${total} (${level})\n\nCheck below each question to see the correct answers.`);
         } else {
-            alert(`Test scored but email delivery failed. Please ensure teacher email is correct in "Teacher Edit" tab. Score: ${score}/${total}`);
+            alert(`⚠️ Test scored but email couldn't be sent. Score: ${score}/${total} (${level})\n\nCorrect answers are shown below each question.`);
         }
-        // Optionally disable further submission
+        
         submitFinal.disabled = true;
-        submitFinal.innerText = "✓ Test submitted";
+        submitFinal.innerText = "✓ Test Submitted";
+        
+        // Disable radio buttons after submission
+        document.querySelectorAll('input[type="radio"]').forEach(radio => radio.disabled = true);
     });
 
     startTestBtn.addEventListener("click", () => {
@@ -493,80 +601,72 @@
         testAreaDiv.style.display = "block";
         renderStudentTest();
         submitFinal.disabled = false;
-        submitFinal.innerText = "📬 Submit test & send to teacher";
+        submitFinal.innerText = "📬 Submit test & see results";
         document.getElementById("resultBox").innerHTML = "";
     });
 
-    // Teacher save
+    // Teacher unlock
+    unlockBtn.addEventListener("click", () => {
+        let enteredPass = document.getElementById("teacherPassword").value;
+        if(enteredPass === teacherPassword) {
+            teacherLockArea.style.display = "none";
+            teacherContentArea.style.display = "block";
+        } else {
+            alert("Incorrect password! Access denied.");
+        }
+    });
+
+    // Save teacher changes
     saveBtn.addEventListener("click", () => {
         try {
             let newTitle = document.getElementById("testTitleInput").value;
             if(newTitle) testTitle = newTitle;
-            let newTeacherEmail = document.getElementById("teacherEmailInput").value.trim();
-            if(newTeacherEmail) teacherEmail = newTeacherEmail;
+            let newPass = document.getElementById("newPasswordInput").value.trim();
+            if(newPass) teacherPassword = newPass;
             let newQuestions = JSON.parse(questionsEditor.value);
             let newReading = JSON.parse(readingEditor.value);
             currentQuestions = newQuestions;
             currentReading = newReading;
             persistData();
             updateTitleUI();
-            alert("✅ Test data & email updated. Student view will reflect changes.");
+            alert("✅ Test data & password saved successfully!");
+            teacherLockArea.style.display = "block";
+            teacherContentArea.style.display = "none";
+            document.getElementById("teacherPassword").value = "";
+            document.getElementById("newPasswordInput").value = "";
         } catch(e) { alert("Invalid JSON: " + e.message); }
     });
 
     resetBtn.addEventListener("click", () => {
-        localStorage.removeItem("testTitle");
-        localStorage.removeItem("teacherEmail");
-        localStorage.removeItem("questionsBank");
-        localStorage.removeItem("readingBank");
-        currentQuestions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
-        currentReading = JSON.parse(JSON.stringify(DEFAULT_READING));
-        teacherEmail = "";
-        testTitle = "Professional Placement Test";
-        persistData();
-        loadFromLocal();
-        if(questionsEditor) questionsEditor.value = JSON.stringify(currentQuestions, null, 2);
-        if(readingEditor) readingEditor.value = JSON.stringify(currentReading, null, 2);
-        if(teacherEmailInput) teacherEmailInput.value = "";
-        updateTitleUI();
-        alert("Reset to default. Don't forget to set your teacher email again.");
+        if(confirm("Reset all questions to default? This will erase your custom changes.")) {
+            currentQuestions = JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
+            currentReading = JSON.parse(JSON.stringify(DEFAULT_READING));
+            testTitle = "Professional Placement Test";
+            persistData();
+            loadFromLocal();
+            alert("Reset to default complete.");
+            teacherLockArea.style.display = "block";
+            teacherContentArea.style.display = "none";
+        }
     });
 
-    // answer key render
-    function renderAnswerKey() {
-        let container = document.getElementById("answerKeyTable");
-        let html = `<table border="1" cellpadding="8" style="border-collapse:collapse; width:100%"><tr style="background:#1a73e8; color:white"><th>#</th><th>Correct</th><th>Section</th></tr>`;
-        currentQuestions.forEach((q, idx) => { html += `<tr><td>${idx+1}</td><td><b>${q.correct}</b></td><td>${q.section}</td></tr>`; });
-        currentReading.readingQuestions.forEach((rq, idx) => { html += `<tr><td>R${idx+1}</td><td><b>${rq.correct}</b></td><td>Reading (${rq.level})</td></tr>`; });
-        html += `</table>`;
-        container.innerHTML = html;
-        document.getElementById("feedbackNotes").innerHTML = `<p>✔️ Phrasal verbs: "take off", "call off", "look forward to + gerund"<br>✔️ Inversion: "Not only was he late..."<br>✔️ Passive reporting: "It is believed that..."<br>Use error analysis: tense, negative form, vocabulary.</p>`;
-    }
-
-    // TABS
+    // TAB switching
     tabStudent.addEventListener("click", () => {
-        studentPanel.style.display = "block"; teacherPanel.style.display = "none"; answerPanel.style.display = "none";
-        tabStudent.classList.add("active"); tabTeacher.classList.remove("active"); tabKey.classList.remove("active");
+        studentPanel.style.display = "block"; teacherPanel.style.display = "none";
+        tabStudent.classList.add("active"); tabTeacher.classList.remove("active");
     });
     tabTeacher.addEventListener("click", () => {
-        studentPanel.style.display = "none"; teacherPanel.style.display = "block"; answerPanel.style.display = "none";
-        tabTeacher.classList.add("active"); tabStudent.classList.remove("active"); tabKey.classList.remove("active");
+        studentPanel.style.display = "none"; teacherPanel.style.display = "block";
+        tabTeacher.classList.add("active"); tabStudent.classList.remove("active");
         questionsEditor.value = JSON.stringify(currentQuestions, null, 2);
         readingEditor.value = JSON.stringify(currentReading, null, 2);
         testTitleInput.value = testTitle;
-        teacherEmailInput.value = teacherEmail;
-    });
-    tabKey.addEventListener("click", () => {
-        studentPanel.style.display = "none"; teacherPanel.style.display = "none"; answerPanel.style.display = "block";
-        tabKey.classList.add("active"); tabStudent.classList.remove("active"); tabTeacher.classList.remove("active");
-        renderAnswerKey();
+        teacherLockArea.style.display = "block";
+        teacherContentArea.style.display = "none";
+        document.getElementById("teacherPassword").value = "";
     });
 
     loadFromLocal();
-    if(teacherEmailInput) teacherEmailInput.value = teacherEmail;
-    if(questionsEditor) questionsEditor.value = JSON.stringify(currentQuestions, null, 2);
-    if(readingEditor) readingEditor.value = JSON.stringify(currentReading, null, 2);
-    testTitleInput.value = testTitle;
 </script>
 </body>
 </html>
